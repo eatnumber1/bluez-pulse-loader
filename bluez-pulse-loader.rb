@@ -62,15 +62,13 @@ class DBusProxy
 
   def method_missing(name, *args, &block)
     $log.debug{ "method_missing(#{name}, #{args}, #{block})" }
-    last_error = nil
     @interfaces.each do |interface|
       begin
         # This will mask if the invoked method raises a NoMethodError, eh.
         ret = @object[interface].public_send(name, *args, &block)
         $log.debug{ "Method dispatched to #{interface}" }
         return ret
-      rescue NoMethodError => e
-        last_error = e
+      rescue NoMethodError
       end
     end
     raise NoMethodError, "undefined method `#{name}' for the interfaces #{@interfaces} on #{@object}"
